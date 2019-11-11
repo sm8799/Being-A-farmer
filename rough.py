@@ -1,0 +1,1 @@
+insquery = 'insert into farmer values (' +"'"+ aid + "'" + ', ' + "'" + firstname + "'" + ', '+ "'" + lastname + "'" + ', ' + "'" + village + "'" + ', ' + "'" + edu + "'" + ', '+ "'" + gender + "'" + ', '+ "'" + mob + "'" +');'

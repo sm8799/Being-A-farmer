@@ -7,6 +7,7 @@
 import os
 import sys
 from subprocess import call
+import MySQLdb
 try:
     import Tkinter as tk
 except ImportError:
@@ -23,6 +24,22 @@ import farmer_support
 
 def click_register():
 	call(['python3', 'register.py'])
+
+def click_business():
+	call(['python3', 'business.py'])
+	
+def click_crops():
+	call(['python3', 'crops.py'])
+	
+def click_loan():
+	call(['python3', 'loan.py'])
+	
+def click_queries():
+	call(['python3', 'queries.py'])
+	
+def click_delete():
+	call(['python3', 'delete.py'])
+	
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
@@ -47,88 +64,106 @@ def destroy_Farmer():
     w = None
 
 class Farmer:
-    def __init__(self, top=None):
-        '''This class configures and populates the toplevel window.
-           top is the toplevel containing window.'''
-        _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-        _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85'
-        _ana2color = '#ececec' # Closest X11 color: 'gray92'
-        font10 = "-family gothic -size 15 -weight normal -slant roman "  \
-            "-underline 0 -overstrike 0"
+	#def 
+	
+	def __init__(self, top=None):
+		try:
+			self.db_far = MySQLdb.connect("localhost","shivam","","FARMER")
+			self.cursor_far = self.db_far.cursor()
+		except:
+			print('Error')
+		_bgcolor = '#d9d9d9'  # X11 color: 'gray85'
+		_fgcolor = '#000000'  # X11 color: 'black'
+		_compcolor = '#d9d9d9' # X11 color: 'gray85'
+		_ana1color = '#d9d9d9' # X11 color: 'gray85'
+		_ana2color = '#ececec' # Closest X11 color: 'gray92'
+		font10 = "-family gothic -size 15 -weight normal -slant roman "  \
+			"-underline 0 -overstrike 0"
 
-        top.geometry("725x573+391+117")
-        top.minsize(1, 1)
-        top.maxsize(1351, 738)
-        top.resizable(0, 0)
-        top.title("Farmer")
-        top.configure(borderwidth="10")
-        top.configure(background="#9ed8d6")
+		top.geometry("725x573+391+117")
+		top.minsize(1, 1)
+		top.maxsize(1351, 738)
+		top.resizable(0, 0)
+		top.title("Farmer")
+		top.configure(borderwidth="10")
+		top.configure(background="#9ed8d6")
 
-        self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
-        top.configure(menu = self.menubar)
+		self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
+		top.configure(menu = self.menubar)
 
-        self.f1 = tk.Frame(top)
-        self.f1.place(relx=0.014, rely=0.017, relheight=0.218, relwidth=0.972)
-        self.f1.configure(relief='groove')
-        self.f1.configure(borderwidth="2")
-        self.f1.configure(relief="groove")
-        self.f1.configure(background="#d6d891")
+		self.f1 = tk.Frame(top)
+		self.f1.place(relx=0.014, rely=0.017, relheight=0.218, relwidth=0.972)
+		self.f1.configure(relief='groove')
+		self.f1.configure(borderwidth="2")
+		self.f1.configure(relief="groove")
+		self.f1.configure(background="#d6d891")
 
-        self.title = tk.Label(self.f1)
-        self.title.place(relx=0.241, rely=0.16, height=75, width=379)
-        self.title.configure(font=font10)
-        self.title.configure(text='''Welcome to Farmer Management System''')
+		self.title = tk.Label(self.f1)
+		self.title.place(relx=0.241, rely=0.16, height=75, width=379)
+		self.title.configure(font=font10)
+		self.title.configure(text='''Welcome to Farmer Management System''')
 
-        self.f2 = tk.Frame(top)
-        self.f2.place(relx=0.014, rely=0.227, relheight=0.759, relwidth=0.972)
-        self.f2.configure(relief='groove')
-        self.f2.configure(borderwidth="2")
-        self.f2.configure(relief="groove")
-        self.f2.configure(background="#b8d8ad")
+		self.f2 = tk.Frame(top)
+		self.f2.place(relx=0.014, rely=0.227, relheight=0.759, relwidth=0.972)
+		self.f2.configure(relief='groove')
+		self.f2.configure(borderwidth="2")
+		self.f2.configure(relief="groove")
+		self.f2.configure(background="#b8d8ad")
 
-        self.business = tk.Button(self.f2)
-        self.business.place(relx=0.34, rely=0.276, height=45, width=220)
-        self.business.configure(activebackground="#7daf64")
-        self.business.configure(background="#63d882")
-        self.business.configure(font=font10)
-        self.business.configure(foreground="#30160f")
-        self.business.configure(text='''Make Business''')
+		self.business = tk.Button(self.f2)
+		self.business.place(relx=0.34, rely=0.207, height=45, width=220)
+		self.business.configure(activebackground="#7daf64")
+		self.business.configure(background="#63d882")
+		self.business.configure(font=font10)
+		self.business.configure(foreground="#30160f")
+		self.business.configure(text='''Make Business''')
+		self.business.configure(command=click_business)
 
-        self.register = tk.Button(self.f2)
-        self.register.place(relx=0.34, rely=0.115, height=45, width=220)
-        self.register.configure(activebackground="#7daf64")
-        self.register.configure(background="#63d882")
-        self.register.configure(font="-family {gothic} -size 15")
-        self.register.configure(foreground="#30160f")
-        self.register.configure(text='''Register''')
-        self.register.configure(command=click_register)
+		self.register = tk.Button(self.f2)
+		self.register.place(relx=0.34, rely=0.046, height=45, width=220)
+		self.register.configure(activebackground="#7daf64")
+		self.register.configure(background="#63d882")
+		self.register.configure(font="-family {gothic} -size 15")
+		self.register.configure(foreground="#30160f")
+		self.register.configure(text='''Register''')
+		self.register.configure(command=click_register)
 
-        self.crop = tk.Button(self.f2)
-        self.crop.place(relx=0.34, rely=0.437, height=45, width=220)
-        self.crop.configure(activebackground="#7daf64")
-        self.crop.configure(background="#63d882")
-        self.crop.configure(font="-family {gothic} -size 15")
-        self.crop.configure(foreground="#30160f")
-        self.crop.configure(text='''Crop Management''')
+		self.crop = tk.Button(self.f2)
+		self.crop.place(relx=0.34, rely=0.368, height=45, width=220)
+		self.crop.configure(activebackground="#7daf64")
+		self.crop.configure(background="#63d882")
+		self.crop.configure(font="-family {gothic} -size 15")
+		self.crop.configure(foreground="#30160f")
+		self.crop.configure(text='''Crop Management''')
+		self.crop.configure(command=click_crops)
 
-        self.loan = tk.Button(self.f2)
-        self.loan.place(relx=0.34, rely=0.598, height=45, width=220)
-        self.loan.configure(activebackground="#7daf64")
-        self.loan.configure(background="#63d882")
-        self.loan.configure(font="-family {gothic} -size 15")
-        self.loan.configure(foreground="#30160f")
-        self.loan.configure(text='''Register for Loan''')
+		self.loan = tk.Button(self.f2)
+		self.loan.place(relx=0.34, rely=0.529, height=45, width=220)
+		self.loan.configure(activebackground="#7daf64")
+		self.loan.configure(background="#63d882")
+		self.loan.configure(font="-family {gothic} -size 15")
+		self.loan.configure(foreground="#30160f")
+		self.loan.configure(text='''Register for Loan''')
+		self.loan.configure(command=click_loan)
 
-        self.queries = tk.Button(self.f2)
-        self.queries.place(relx=0.34, rely=0.759, height=45, width=220)
-        self.queries.configure(activebackground="#7daf64")
-        self.queries.configure(background="#63d882")
-        self.queries.configure(font="-family {gothic} -size 15")
-        self.queries.configure(foreground="#30160f")
-        self.queries.configure(text='''Queries''')
-
+		self.queries = tk.Button(self.f2)
+		self.queries.place(relx=0.34, rely=0.69, height=45, width=220)
+		self.queries.configure(activebackground="#7daf64")
+		self.queries.configure(background="#63d882")
+		self.queries.configure(font="-family {gothic} -size 15")
+		self.queries.configure(foreground="#30160f")
+		self.queries.configure(text='''Queries''')
+		self.queries.configure(command=click_queries)
+		
+		self.delete = tk.Button(self.f2)
+		self.delete.place(relx=0.34, rely=0.851, height=45, width=220)
+		self.delete.configure(activebackground="#7daf64")
+		self.delete.configure(background="#63d882")
+		self.delete.configure(font=font10)
+		self.delete.configure(foreground="#30160f")
+		self.delete.configure(text='''Delete''')
+		self.delete.configure(command=click_delete)
+		
 if __name__ == '__main__':
     vp_start_gui()
 

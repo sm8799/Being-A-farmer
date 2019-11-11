@@ -5,8 +5,10 @@
 #  in conjunction with Tcl version 8.6
 #    Oct 26, 2019 12:02:49 AM IST  platform: Linux
 
+import os
 import sys
-
+from subprocess import call
+import MySQLdb
 try:
     import Tkinter as tk
 except ImportError:
@@ -21,6 +23,11 @@ except ImportError:
 
 import crops_support
 
+def click_home():
+	global root
+	root.destroy()
+	root = None
+	
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
@@ -47,7 +54,20 @@ def destroy_Crop():
     w = None
 
 class Crop:
+    def store_crop(self):
+        crop_name = self.cropdata.get()
+        aadhar = self.adhar.get()
+        sector = self.cropdata_7.get()
+        season = self.Season.get()
+        irri = self.irri.get()
+        self.cursor_crop.execute("INSERT INTO field VALUES (%s, %s, %s)", (crop_name, irri, season))
+        self.cursor("INSERT INTO sector VALUES (%s, %s, %s)", (aadhar, fid, sector))
     def __init__(self, top=None):
+        try:
+            self.db_crop = MySQLdb.connect("localhost","shivam","","FARMER")
+            self.cursor_crop = self.db_crop.cursor()
+        except:
+    	    print('hi')
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -136,6 +156,7 @@ class Crop:
         self.home.configure(background="#d8329b")
         self.home.configure(font=font9)
         self.home.configure(text='''Home''')
+        self.home.configure(command=click_home)
 
         self.submit = tk.Button(top)
         self.submit.place(relx=0.745, rely=0.873, height=35, width=90)
@@ -143,6 +164,7 @@ class Crop:
         self.submit.configure(background="#d8329b")
         self.submit.configure(font=font9)
         self.submit.configure(text='''Submit''')
+        self.submit.configure(command=self.store_crop)
 
         self.Season = ttk.Combobox(top)
         self.Season.place(relx=0.579, rely=0.593, relheight=0.061
