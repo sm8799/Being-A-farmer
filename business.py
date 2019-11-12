@@ -13,7 +13,7 @@ try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
+from tkinter import messagebox
 try:
     import ttk
     py3 = False
@@ -55,17 +55,47 @@ def destroy_business():
 
 class business:
     def register_business(self):
+        l = []
         inc = {'Local': '20000', 'Primary':'40000', 'Secondary':'60000', 'Tertiary':'80000'}
         aadhar = self.reg_2.get()
         region = self.reg.get()
         pincode = self.pin.get()
         service_type = self.type.get()
+        l.append(aadhar)
+        l.append(region)
+        l.append(pincode)
+        l.append(service_type)
+        for i in l:
+            if len(i) == 0:
+                messagebox.showerror("Business failure", "All fields are mandatory")
+                return
+        if not len(aadhar) == 12:
+            messagebox.showerror("Business Error", "12 Digit Aadhaar Number is required")
+            return
+        if not len(pincode) == 6:
+            messagebox.showerror("Business Error", "6 Digit Pincode is required")
+            return
         income = inc[service_type]
-        self.cursor_bus.execute("INSERT INTO service VALUES (%s, %s, %s)", (region, service_type, pincode))
-        self.db_bus.commit()
-        self.cursor_bus.execute("INSERT INTO business VALUES (%s, %s, %s, %s)", (aadhar, service_type, pincode, income))
-        self.db_bus.commit()
-        
+        self.cursor_bus.execute("SELECT aid FROM farmer WHERE aid = {}".format(aadhar))
+        result = self.cursor_bus.fetchone()
+        try:
+            if result is None:
+                messagebox.showerror("Business Error", "Farmer not registered")
+                return
+        except:
+            messagebox.showerror("Business Error", "Incorrect Aadhaar Number")
+            return
+            
+        try:
+            self.cursor_bus.execute("INSERT INTO service VALUES (%s, %s, %s)", (region, service_type, pincode))
+        except:
+            pass
+        try:
+            self.cursor_bus.execute("INSERT INTO business VALUES (%s, %s, %s, %s)", (aadhar, service_type, pincode, income))
+            self.db_bus.commit()
+        except:
+            messagebox.showerror("Business Info", "Farmer is already registered")
+            return
 
     def __init__(self, top=None):
         try:

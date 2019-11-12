@@ -13,7 +13,7 @@ try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
+from tkinter import messagebox
 try:
     import ttk
     py3 = False
@@ -57,14 +57,42 @@ def destroy_loan():
 
 class loan:
     def request_loan(self):
-        lic = {'tractor loan': '1','Kisan Credit,Card': '2','Gold loan':'3','Harvesting Loan':'4','Allied loan':'5','Marketing Loan':'6'}
-        amount = {'tractor loan': '100000','Kisan Credit,Card': '200000','Gold loan':'300000','Harvesting Loan':'400000','Allied loan':'500000','Marketing Loan':'600000'}
+        lic = {'tractor loan': '1','Kisan Credit Card': '2','Gold loan':'3','Harvesting Loan':'4','Allied loan':'5','Marketing Loan':'6'}
+        amount = {'tractor loan': '100000','Kisan Credit Card': '200000','Gold loan':'300000','Harvesting Loan':'400000','Allied loan':'500000','Marketing Loan':'600000'}
+        l = []
         aadhar = self.adhar.get()
         loan_name = self.TCombobox1.get()
+        l.append(aadhar)
+        l.append(loan_name)
+        for i in l:
+            if len(i) == 0:
+                messagebox.showerror("Loan Error", "All fields are mandatory")
+                return
+        if not len(aadhar) == 12:
+            messagebox.showerror("Loan Error", "12 Digit Aadhaar Number is required")
+            return
         loan = amount[loan_name]
         lid = lic[loan_name]
-        self.cursor_loan.execute("INSERT INTO scheme VALUES (%s, %s, %s)",(lid, loan_name, loan))
-        self.cursor_loan.execute("INSERT INTO takes VALUES (%s, %s)",(aadhar, lid))
+        
+        self.cursor_loan.execute("SELECT aid FROM farmer WHERE aid = {}".format(aadhar))
+        result = self.cursor_loan.fetchone()
+        try:
+            if result is None:
+                messagebox.showerror("Loan Error", "Farmer not registered")
+                return
+        except:
+            messagebox.showerror("Loan Error", "Incorrect Aadhaar Number")
+            return
+        try:
+            self.cursor_loan.execute("INSERT INTO scheme VALUES (%s, %s, %s)",(lid, loan_name, loan))
+            self.cursor_loan.execute("INSERT INTO takes VALUES (%s, %s)",(aadhar, lid))
+            messagebox.showinfo("Loan Info", "Loan for " + aadhar + " is successfully registered")
+        except:
+            try:
+                self.cursor_loan.execute("INSERT INTO takes VALUES (%s, %s)",(aadhar, lid))
+            except:
+                messagebox.showinfo("Loan Info", "Loan for " + aadhar + " is already registered")
+                return
         self.db_loan.commit()
     def __init__(self, top=None):
         
@@ -112,7 +140,7 @@ class loan:
         self.TCombobox1 = ttk.Combobox(top)
         self.TCombobox1.place(relx=0.497, rely=0.571, relheight=0.061
                 , relwidth=0.479)
-        self.value_list = ['tractor loan','Kisan Credit,Card','Gold loan','Harvesting Loan','Allied loan','Marketing Loan']
+        self.value_list = ['tractor loan','Kisan Credit Card','Gold loan','Harvesting Loan','Allied loan','Marketing Loan']
         self.TCombobox1.configure(values=self.value_list)
         self.TCombobox1.configure(state='readonly')
         self.TCombobox1.configure(textvariable=loan_support.combobox)

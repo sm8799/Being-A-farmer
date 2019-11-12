@@ -12,7 +12,7 @@ create table farmer (
 create table field (
 	fid 		int not null AUTO_INCREMENT,
 	crop_name 	varchar(20) not null,
-	irrigation 	varchar(20) not null,
+	irrogation 	varchar(20) not null,
 	season 		varchar(20) not null,
 	primary key(fid)
 );

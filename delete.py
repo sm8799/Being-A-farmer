@@ -11,7 +11,7 @@ try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
+from tkinter import messagebox
 try:
     import ttk
     py3 = False
@@ -52,8 +52,15 @@ def destroy_DEL():
 class DEL:
     def delete_farmer(self):
         aadhar = self.Entry1.get()
-        self.cursor_del.execute("DELETE FROM farmer WHERE aid = {}".format(aadhar))
-        self.db_del.commit()
+        if len(aadhar) == 12: 
+            try:
+                self.cursor_del.execute("DELETE FROM farmer WHERE aid = {}".format(aadhar))
+                self.db_del.commit()
+                messagebox.showinfo("Deletion Successful", aadhar + " Successfully deleted")
+            except:
+                messagebox.showerror("Deletion Error", aadhar + " is not present")
+        else:
+            messagebox.showerror("Deletion error", "12 digit Aadhaar Number required")
 
     def __init__(self, top=None):
         try:

@@ -13,7 +13,7 @@ try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
+from tkinter import messagebox
 try:
     import ttk
     py3 = False
@@ -55,13 +55,46 @@ def destroy_Crop():
 
 class Crop:
     def store_crop(self):
+        l = []
         crop_name = self.cropdata.get()
         aadhar = self.adhar.get()
         sector = self.cropdata_7.get()
         season = self.Season.get()
         irri = self.irri.get()
-        self.cursor_crop.execute("INSERT INTO field VALUES (%s, %s, %s)", (crop_name, irri, season))
-        self.cursor("INSERT INTO sector VALUES (%s, %s, %s)", (aadhar, fid, sector))
+        l.append(crop_name)
+        l.append(aadhar)
+        l.append(sector)
+        l.append(season)
+        l.append(irri)
+        for i in l:
+            if len(i) == 0:
+                messagebox.showerror("Enrollment failure", "All fields are mandatory")
+                return
+        if not len(aadhar) == 12:
+            messagebox.showerror("Enrollment Error", "12 Digit Aadhaar Number is required")
+            return
+        self.cursor_crop.execute("SELECT aid FROM farmer WHERE aid = {}".format(aadhar))
+        result = self.cursor_crop.fetchone()
+        try:
+            if result is None:
+                messagebox.showerror("Search Error", "Farmer not registered")
+                return
+        except:
+            messagebox.showerror("Search Error", "Incorrect Aadhaar Number")
+            return
+        try:
+            self.cursor_crop.execute("INSERT INTO field (crop_name, irrogation, season) VALUES (%s, %s, %s)", (crop_name, irri, season))
+            self.cursor_crop.execute("SELECT fid FROM field WHERE crop_name = %s and irrogation = %s and season = %s", (crop_name, irri, season))
+        except:
+            self.cursor_crop.execute("SELECT fid FROM field WHERE crop_name = %s and irrogation = %s and season = %s", (crop_name, irri, season))
+        result = self.cursor_crop.fetchone()
+        try:
+            self.cursor_crop.execute("INSERT INTO sector (aid, fid, sector_no) VALUES ({}, {}, {})".format(aadhar, int(result[0]), sector))
+            self.db_crop.commit()
+            messagebox.showinfo("Crop Info", "Crop is Successfully enrolled")
+        except:
+            messagebox.showerror("Crop Error", "Crop is already enrolled")
+
     def __init__(self, top=None):
         try:
             self.db_crop = MySQLdb.connect("localhost","shivam","","FARMER")

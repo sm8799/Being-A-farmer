@@ -13,7 +13,7 @@ try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
+from tkinter import messagebox
 try:
     import ttk
     py3 = False
@@ -55,6 +55,7 @@ def destroy_registration():
 
 class registration:
     def register_farmer(self):
+        l = []
         firstname = self.first_name.get()
         lastname = self.last_name.get()
         gender = self.TCombobox1.get()
@@ -62,9 +63,29 @@ class registration:
         mob = self.mob.get()
         aid = self.mob_6.get()
         edu = self.edu.get()
-        self.cursor_reg.execute("INSERT INTO farmer VALUES (%s, %s, %s, %s, %s, %s, %s)",(aid, firstname, lastname, village, edu, gender, mob))
-        self.db_reg.commit()
-        
+        l.append(firstname)
+        l.append(lastname)
+        l.append(gender)
+        l.append(village)
+        l.append(mob)
+        l.append(aid)
+        l.append(edu)
+        for i in l:
+            if len(i) == 0:
+                messagebox.showerror("Registration failure", "All fields are mandatory")
+                return
+        if not len(l[4]) == 10:
+            messagebox.showerror("Registration failure", "10 digit Mobile Number required")
+            return
+        elif not len(l[5]) == 12:
+            messagebox.showerror("Registration failure", "12 digit Aadhaar Number required")
+            return
+        try:
+            self.cursor_reg.execute("INSERT INTO farmer VALUES (%s, %s, %s, %s, %s, %s, %s)",(aid, firstname, lastname, village, edu, gender, mob))
+            self.db_reg.commit()
+            messagebox.showinfo("Registration Success", firstname + " " + lastname + " is Successfully registered")
+        except:
+            messagebox.showerror("Registration failure", "Already Registered")
     def __init__(self, top=None):
     	
         try:

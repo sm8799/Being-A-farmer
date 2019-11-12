@@ -8,11 +8,12 @@
 import os
 import sys
 from subprocess import call
+import MySQLdb
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
+from tkinter import messagebox
 try:
     import ttk
     py3 = False
@@ -31,6 +32,7 @@ def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
+    root.option_add('*Dialog.msg.font', 'Arial 12 bold')
     queries_support.set_Tk_var()
     top = query (root)
     queries_support.init(root, top)
@@ -53,7 +55,97 @@ def destroy_query():
     w = None
 
 class query:
+    def click_search(self):
+        aadhar = self.Entry1.get()
+        count = 0
+        if not len(aadhar) == 12:
+            messagebox.showerror("Search Error", "12 Digit Aadhaar Number is required")
+            return
+        self.cursor_que.execute("SELECT aid FROM farmer WHERE aid = {}".format(aadhar))
+        result = self.cursor_que.fetchone()
+        try:
+            if result is None:
+                messagebox.showerror("Search Error", "Farmer not registered")
+                return
+        except:
+            messagebox.showerror("Search Error", "Incorrect Aadhaar Number")
+            return
+        l = []
+        #self.cursor
+        try:
+            self.cursor_que.execute("SELECT * FROM scheme WHERE sid = ( SELECT sid FROM takes WHERE aid = {})".format(aadhar))
+            result = self.cursor_que.fetchone()
+            l.append(" ")
+            l.append("Loan Information of Farmer:-")
+            l.append(result[1] + "  " +result[2])
+            l.append(" ")
+        except:
+            count += 1
+        try:
+            self.cursor_que.execute("SELECT * FROM service WHERE (service_mode, pincode) = any (SELECT service_mode, pincode FROM business WHERE aid = {})".format(aadhar))
+            result = self.cursor_que.fetchall()
+            length = len(result)
+            k = 0
+            l.append("Service information of Farmer:-")
+            l.append(" ")
+            while k < length:
+                l.append(result[k][0] + "  " + result[k][1] + "  " +result[k][2])
+                k += 1
+            l.append(" ")
+        except:
+            count += 1
+        try:    
+            self.cursor_que.execute("SELECT SUM(income) FROM business GROUP BY (aid) having aid = {}".format(aadhar))
+            result = self.cursor_que.fetchone()
+            l.append("Income Information of Farmer:-")
+            l.append(" ")
+            l.append(result[0])
+            l.append(" ")
+        except:
+            count += 1
+        try:
+            self.cursor_que.execute("SELECT * FROM field WHERE fid = any(SELECT fid FROM sector WHERE aid = {})".format(aadhar))
+            result = self.cursor_que.fetchall()
+            length = len(result)
+            k = 0
+            l.append("Crops taken from farmer are :-")
+            l.append(" ")
+            while k < length:
+                l.append(result[k][1] + "  " + result[k][2] + "  " +result[k][3])
+                k += 1
+            l.append(" ")
+        except:
+            count += 1
+        try:
+            self.cursor_que.execute("SELECT sector_no FROM sector WHERE aid = {}".format(aadhar))
+            result = self.cursor_que.fetchall()
+            length = len(result)
+            k = 0
+            l.append("Farmer has farm at sectors:-")
+            l.append("")
+            s = ""
+            while k < length:
+                s += result[k][0] + ","
+                k += 1
+            l.append(s)
+            l.append("")
+        except:
+            count += 1
+            if count == 5:
+                messagebox.showwarning("Search Error", "Farmer has not registered for facilities")
+        length = len(l)
+        k = 0
+        while k < length:
+            self.Listbox1.insert(k, l[k])
+            k += 1
+            
     def __init__(self, top=None):
+        
+        try:
+            self.db_que = MySQLdb.connect("localhost","shivam","","FARMER")
+            self.cursor_que = self.db_que.cursor()
+        except:
+    	    print('hi')
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -79,31 +171,50 @@ class query:
         top.title("Query Page")
         top.configure(cursor="arrow")
 
-        self.TCombobox1 = ttk.Combobox(top)
-        self.TCombobox1.place(relx=0.069, rely=0.209, relheight=0.096
+        '''self.TCombobox1 = ttk.Combobox(top)
+        self.TCombobox1.place(relx=0.069, rely=0.309, relheight=0.056
                 , relwidth=0.892)
         self.TCombobox1.configure(font=font9)
         self.TCombobox1.configure(state='readonly')
         self.TCombobox1.configure(textvariable=queries_support.combobox)
-        self.TCombobox1.configure(takefocus="")
+        self.TCombobox1.configure(takefocus="")'''
 
         self.title = tk.Label(top)
         self.title.place(relx=0.317, rely=0.105, height=45, width=259)
         self.title.configure(background="#8ad8d5")
         self.title.configure(font=font9)
         self.title.configure(text='''General Queries''')
-
+        
+        self.aadhar = tk.Label(top)
+        self.aadhar.place(relx=0.067, rely=0.199, height=32, width=150)
+        self.aadhar.configure(background="#8ad8d5")
+        self.aadhar.configure(font=font9)
+        self.aadhar.configure(text='''Aadhaar Number''')
+        
         self.Listbox1 = tk.Listbox(top)
-        self.Listbox1.place(relx=0.069, rely=0.401, relheight=0.51
+        self.Listbox1.place(relx=0.069, rely=0.421, relheight=0.451
                 , relwidth=0.888)
         self.Listbox1.configure(background="white")
-        self.Listbox1.configure(font="TkFixedFont")
+        self.Listbox1.configure(font="Times 15")
 
-        self.submit = tk.Button(top)
-        self.submit.place(relx=0.828, rely=0.332, height=32, width=88)
+        '''self.submit = tk.Button(top)
+        self.submit.place(relx=0.828, rely=0.372, height=32, width=88)
         self.submit.configure(background="#a2d89c")
         self.submit.configure(font=font9)
-        self.submit.configure(text='''Submit''')
+        self.submit.configure(text=''''''Submit'''''')'''
+        
+        self.Entry1 = tk.Entry(top)
+        self.Entry1.place(relx=0.313, rely=0.199,height=32, relwidth=0.345)
+        self.Entry1.configure(background="white")
+        self.Entry1.configure(font=font9)
+        self.Entry1.configure(takefocus="0")
+        
+        self.search = tk.Button(top)
+        self.search.place(relx=0.828, rely=0.199, height=32, width=88)
+        self.search.configure(background="#a2d89c")
+        self.search.configure(font=font9)
+        self.search.configure(text='''Search''')
+        self.search.configure(command=self.click_search)
 
         self.home = tk.Button(top)
         self.home.place(relx=0.828, rely=0.925, height=32, width=88)
