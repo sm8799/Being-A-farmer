@@ -93,6 +93,7 @@ class business:
         try:
             self.cursor_bus.execute("INSERT INTO business VALUES (%s, %s, %s, %s)", (aadhar, service_type, pincode, income))
             self.db_bus.commit()
+            messagebox.showinfo("Business Error", "Farmer not registered")
         except:
             messagebox.showerror("Business Info", "Farmer is already registered")
             return

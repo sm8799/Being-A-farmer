@@ -9,6 +9,10 @@ import os
 import sys
 from subprocess import call
 import MySQLdb
+
+from fpdf import FPDF
+string = ""
+m = []
 try:
     import Tkinter as tk
 except ImportError:
@@ -56,6 +60,7 @@ def destroy_query():
 
 class query:
     def click_search(self):
+        global string, m
         aadhar = self.Entry1.get()
         count = 0
         if not len(aadhar) == 12:
@@ -127,6 +132,7 @@ class query:
             while k < length:
                 s += result[k][0] + ","
                 k += 1
+            s = s.rstrip(',')
             l.append(s)
             l.append("")
         except:
@@ -134,11 +140,26 @@ class query:
             if count == 5:
                 messagebox.showwarning("Search Error", "Farmer has not registered for facilities")
         length = len(l)
+        m = []
+        for i in l:
+            m.append(str(i))
+        string = '\n'.join(m)
         k = 0
         while k < length:
             self.Listbox1.insert(k, l[k])
             k += 1
-            
+        
+    def click_report(self):
+        global string, m
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Arial', 'B', 16)
+        i = 0
+        while i < len(m):
+            pdf.cell(200, 10, txt = m[i], ln = i + 1)
+            i += 1
+        pdf.output('Report.pdf', 'F')
+    
     def __init__(self, top=None):
         
         try:
@@ -223,6 +244,14 @@ class query:
         self.home.configure(font="-family {gothic} -size 15")
         self.home.configure(text='''Home''')
         self.home.configure(command=click_home)
+        
+        self.d = tk.Button(top)
+        self.d.place(relx=0.069, rely=0.925, height=32, width=200)
+        self.d.configure(activebackground="#f9f9f9")
+        self.d.configure(background="#a2d89c")
+        self.d.configure(font="-family {gothic} -size 15")
+        self.d.configure(text='''Download Report''')
+        self.d.configure(command=self.click_report)
 
 if __name__ == '__main__':
     vp_start_gui()

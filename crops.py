@@ -9,6 +9,7 @@ import os
 import sys
 from subprocess import call
 import MySQLdb
+
 try:
     import Tkinter as tk
 except ImportError:
@@ -89,7 +90,7 @@ class Crop:
             self.cursor_crop.execute("SELECT fid FROM field WHERE crop_name = %s and irrogation = %s and season = %s", (crop_name, irri, season))
         result = self.cursor_crop.fetchone()
         try:
-            self.cursor_crop.execute("INSERT INTO sector (aid, fid, sector_no) VALUES ({}, {}, {})".format(aadhar, int(result[0]), sector))
+            self.cursor_crop.execute("INSERT INTO sector (aid, fid, sector_no) VALUES ('{}', {}, '{}')".format(aadhar, int(result[0]), sector))
             self.db_crop.commit()
             messagebox.showinfo("Crop Info", "Crop is Successfully enrolled")
         except:

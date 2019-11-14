@@ -9,6 +9,9 @@ import sys
 from subprocess import call
 import MySQLdb
 
+import requests
+import json
+
 try:
     import Tkinter as tk
 except ImportError:
@@ -55,6 +58,17 @@ def destroy_registration():
 
 class registration:
     def register_farmer(self):
+        URL = 'https://www.way2sms.com/api/v1/sendCampaign'
+        def sendPostRequest(reqUrl, apiKey, secretKey, useType, phoneNo, senderId, textMessage, mob):
+            req_params = {
+            'apikey':'AINXY3O3QCM8XEWBOETF8LUS0AOGFKZY',
+            'secret':'FU51KAO5TWL15RJT',
+            'usetype':'stage',
+            'phone': '91' + mob,
+            'message':'You are successfully registered with Being A Farmer',
+            'senderid':'farmer'
+            }
+            return requests.post(reqUrl, req_params)
         l = []
         firstname = self.first_name.get()
         lastname = self.last_name.get()
@@ -72,19 +86,26 @@ class registration:
         l.append(edu)
         for i in l:
             if len(i) == 0:
+                
                 messagebox.showerror("Registration failure", "All fields are mandatory")
                 return
         if not len(l[4]) == 10:
+            
             messagebox.showerror("Registration failure", "10 digit Mobile Number required")
             return
         elif not len(l[5]) == 12:
+            
             messagebox.showerror("Registration failure", "12 digit Aadhaar Number required")
             return
         try:
             self.cursor_reg.execute("INSERT INTO farmer VALUES (%s, %s, %s, %s, %s, %s, %s)",(aid, firstname, lastname, village, edu, gender, mob))
             self.db_reg.commit()
+            
             messagebox.showinfo("Registration Success", firstname + " " + lastname + " is Successfully registered")
+            response = sendPostRequest(URL, 'provided-api-key', 'provided-secret', 'prod/stage', 'valid-to-mobile', 'active-sender-id', 'message-text', mob)
+            print(response.text)
         except:
+            
             messagebox.showerror("Registration failure", "Already Registered")
     def __init__(self, top=None):
     	

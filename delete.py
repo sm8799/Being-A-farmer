@@ -7,6 +7,7 @@
 
 import sys
 import MySQLdb
+
 try:
     import Tkinter as tk
 except ImportError:
